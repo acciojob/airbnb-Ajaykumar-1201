@@ -20,7 +20,7 @@ public class HotelManagementRepository {
         //In case somebody is trying to add the duplicate hotelName return FAILURE
         //in all other cases return SUCCESS after successfully adding the hotel to the hotelDb.
 
-        if(hotel == null) {
+        if(hotel == null || hotel.getHotelName() == null) {
             return "FAILURE";
         }else if(hotelDb.containsKey(hotel.getHotelName())) {
             return "FAILURE";
@@ -127,7 +127,6 @@ public class HotelManagementRepository {
         hotelDb.put(hotelName, hotel);
 
         return hotel;
-
 
     }
 }
