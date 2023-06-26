@@ -1,5 +1,6 @@
 package com.driver.controllers;
 
+import com.driver.Services.HotelManagementService;
 import com.driver.model.Booking;
 import com.driver.model.Facility;
 import com.driver.model.Hotel;
@@ -21,6 +22,8 @@ import java.util.UUID;
 @RequestMapping("/hotel")
 public class HotelManagementController {
 
+    private HotelManagementService hotelManagementService = new HotelManagementService();
+
     @PostMapping("/add-hotel")
     public String addHotel(@RequestBody Hotel hotel){
 
@@ -29,17 +32,17 @@ public class HotelManagementController {
         //Incase somebody is trying to add the duplicate hotelName return FAILURE
         //in all other cases return SUCCESS after successfully adding the hotel to the hotelDb.
 
+        return hotelManagementService.addHotel(hotel);
 
-        return null;
     }
 
     @PostMapping("/add-user")
     public Integer addUser(@RequestBody User user){
 
         //You need to add a User Object to the database
-        //Assume that user will always be a valid user and return the aadharCardNo of the user
+        //Assume that user will always be a valid user and return the aadhar CardNo of the user
 
-       return null;
+       return hotelManagementService.addUser(user);
     }
 
     @GetMapping("/get-hotel-with-most-facilities")
@@ -49,7 +52,7 @@ public class HotelManagementController {
         //Incase there is a tie return the lexicographically smaller hotelName
         //Incase there is not even a single hotel with atleast 1 facility return "" (empty string)
 
-        return null;
+        return hotelManagementService.getHotelWithMostFacilities();
     }
 
     @PostMapping("/book-a-room")
