@@ -1,17 +1,19 @@
 package com.driver.Repository;
 
+import com.driver.model.Booking;
 import com.driver.model.Facility;
 import com.driver.model.Hotel;
 import com.driver.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class HotelManagementRepository {
 
     HashMap<String, Hotel> hotelDb = new HashMap<>();
-    HashMap<String, User> userDb = new HashMap<>();
+    HashMap<Integer, User> userDb = new HashMap<>();
+    HashMap<String, Booking> bookingDb = new HashMap<>();
+
+    HashMap<Integer, List<Booking>> userBookingDb = new HashMap<>();
     public String addHotel(Hotel hotel) {
         //You need to add a hotel to the database
         //In case the hotelName is null or the hotel Object is null return an empty a FAILURE
@@ -34,8 +36,8 @@ public class HotelManagementRepository {
     public Integer addUser(User user) {
         //You need to add a User Object to the database
         //Assume that user will always be a valid user and return the aadhar CardNo of the user
-        String name = user.getName();
-        userDb.put(name, user);
+        //String name = user.getName();
+        userDb.put(user.getaadharCardNo(), user);
 
         return user.getaadharCardNo();
     }
@@ -68,5 +70,64 @@ public class HotelManagementRepository {
             }
         }
         return res;
+    }
+
+    public int bookARoom(Booking booking) {
+        //The booking object coming from postman will have all the attributes except bookingId and amountToBePaid;
+        //Have bookingId as a random UUID generated String
+        //save the booking Entity and keep the bookingId as a primary key
+        //Calculate the total amount paid by the person based on no. of rooms booked and price of the room per night.
+        //If there aren't enough rooms available in the hotel that we are trying to book return -1
+        //in other case return total amount paid
+
+        UUID uuid = UUID.randomUUID();
+        booking.setBookingId(String.valueOf(uuid));
+
+        int pricePerRoom = hotelDb.get(booking.getHotelName()).getPricePerNight();
+        int noOfRooms = booking.getNoOfRooms();
+
+        if(noOfRooms > hotelDb.get(booking.getHotelName()).getAvailableRooms()) {
+            return -1;
+        }
+
+        booking.setAmountToBePaid(pricePerRoom * noOfRooms);
+        List<Booking> list = userBookingDb.getOrDefault(booking.getBookingAadharCard(), new ArrayList<>());
+        list.add(booking);
+        userBookingDb.put(booking.getBookingAadharCard(), list);
+        bookingDb.put(String.valueOf(uuid), booking);
+
+        return booking.getAmountToBePaid();
+
+    }
+
+    public int getBookins(Integer aadharCard) {
+        List<Booking> bookings = userBookingDb.get(aadharCard);
+
+        return bookings.size();
+    }
+
+    public Hotel update(List<Facility> newFacilities, String hotelName) {
+        //We are having a new facilites that a hotel is planning to bring.
+        //If the hotel is already having that facility ignore that facility otherwise add that facility in the hotelDb
+        //return the final updated List of facilities and also update that in your hotelDb
+        //Note that newFacilities can also have duplicate facilities possible
+
+        Hotel hotel = hotelDb.get(hotelName);
+
+        List<Facility> facilityList = hotel.getFacilities();
+
+        HashSet<Facility> facilities = new HashSet<>(facilityList);
+
+        facilities.addAll(newFacilities);
+
+        List<Facility> finalList = new ArrayList<>(facilities);
+
+        hotel.setFacilities(finalList);
+
+        hotelDb.put(hotelName, hotel);
+
+        return hotel;
+
+
     }
 }
